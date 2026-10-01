@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>International Coffee Day</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        cinzel: ['Cinzel', 'serif'],
+                        outfit: ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            gold: '#D4AF37',
+                            amber: '#FFBF00',
+                            brown: '#8b4513',
+                            lightBrown: '#a0522d',
+                            darkBg1: '#4a2f1d',
+                            darkBg2: '#1a100c'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            /* Dark radial gradient background */
+            background: radial-gradient(circle at center, #4a2f1d 0%, #1a100c 100%);
+            color: #F9F6F0;
+            overflow: hidden;
+            font-family: 'Outfit', sans-serif;
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            user-select: none;
+        }
+
+        /* Steady In-Place Glow for "Coffee" */
+        @keyframes steadyGlow {
+            0%, 100% { 
+                text-shadow: 0 0 10px rgba(160, 82, 45, 0.5), 0 0 20px rgba(160, 82, 45, 0.3); 
+                color: #a0522d; /* light brown */
+            }
+            50% { 
+                text-shadow: 0 0 15px rgba(139, 69, 19, 0.8), 0 0 30px rgba(139, 69, 19, 0.5); 
+                color: #8b4513; /* rich brown */
+            }
+        }
+        .coffee-word {
+            animation: steadyGlow 3s infinite ease-in-out;
+            display: inline-block;
+            font-weight: 700;
+        }
+
+        /* Floating Background Icons */
+        .bg-icon {
+            position: absolute;
+            color: rgba(212, 175, 55, 0.05); /* Very subtle gold */
+            font-size: 2rem;
+            pointer-events: none;
+            z-index: 0;
+            animation: floatIcon linear infinite;
+        }
+
+        @keyframes floatIcon {
+            0% { transform: translateY(110vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+        }
+
+        /* Orbit Elements */
+        .coffee-wrapper {
+            position: absolute;
+            top: 0;
+            left: 0;
+            /* Z-index gets dynamically updated via GSAP based on Y position */
+            pointer-events: auto;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            /* Will change transform scale dynamically */
+            transition: filter 0.3s ease;
+        }
+
+        .coffee-wrapper:hover {
+            filter: brightness(1.2);
+        }
+
+        /* Circular Coffee Images */
+        .coffee-img {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            border: 4px solid #8b4513; /* Solid brown border */
+            object-fit: cover;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(0,0,0,0.5);
+            background-color: #2a1b12; 
+            pointer-events: none;
+        }
+
+        @media (min-width: 768px) {
+            .coffee-img {
+                width: 140px;
+                height: 140px;
+                border-width: 5px;
+            }
+        }
+
+        /* Coffee Names (No background, no border) */
+        .coffee-name {
+            margin-top: 12px;
+            font-size: 1rem;
+            color: #E8D8C3;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9), 0 0 10px rgba(0,0,0,0.8);
+            white-space: nowrap;
+            letter-spacing: 0.05em;
+            pointer-events: none;
+            font-weight: 600;
+        }
+
+        @media (min-width: 768px) {
+            .coffee-name {
+                font-size: 1.25rem;
+                margin-top: 16px;
+            }
+        }
+
+        /* Glassmorphism Detail Card */
+        .glass-card {
+            background: rgba(26, 16, 12, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(139, 69, 19, 0.3);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.7);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="bg-icons-container" class="absolute inset-0 w-full h-full overflow-hidden z-0"></div>
+
+    <div id="main-view" class="absolute inset-0 w-full h-full z-10 flex flex-col pointer-events-none">
+        
+        <!-- Header Text Section (Top Half) -->
+        <div class="w-full h-[45vh] flex flex-col items-center justify-center pt-10 text-center px-4 md:px-12 pointer-events-auto z-50">
+            <p class="font-outfit text-[#FFBF00] tracking-[0.25em] uppercase text-xs md:text-sm font-semibold mb-4 opacity-90 drop-shadow-md">
+                Celebrating International Coffee Day
+            </p>
+            <h1 class="font-cinzel text-white text-3xl md:text-5xl lg:text-6xl font-bold mb-4 leading-tight max-w-4xl drop-shadow-lg">
+                Fall in love this October with your favorite <span class="coffee-word">Coffee</span>
+            </h1>
+            <p class="font-outfit text-[#E8D8C3] max-w-2xl mx-auto text-sm md:text-lg font-light opacity-80 drop-shadow-md">
+                Select a coffee type to learn more about its preparation secrets and rich ingredients.
+            </p>
+        </div>
+
+        <!-- Orbit Container (Lower Half dynamically handled) -->
+        <div id="orbit-container" class="absolute inset-0 w-full h-full pointer-events-none z-20">
+            <!-- Cups dynamically injected here -->
+        </div>
+    </div>
+
+    <div id="detail-view" class="absolute inset-0 w-full h-full flex items-center justify-center p-4 md:p-8 z-50 opacity-0 pointer-events-none">
+        
+        <div class="glass-card w-full max-w-5xl rounded-3xl p-8 md:p-14 relative flex flex-col md:flex-row items-center gap-10 md:gap-16">
+            
+            <button id="back-btn" class="absolute top-6 left-6 px-6 py-2.5 bg-brand-darkBg1/80 hover:bg-brand-brown border border-brand-brown text-[#E8D8C3] rounded-full flex items-center gap-2 transition-all duration-300 font-outfit text-sm font-medium cursor-pointer pointer-events-auto shadow-lg hover:shadow-xl">
+                <i class="fa-solid fa-arrow-left"></i> Back to Menu
+            </button>
+
+            <div class="w-56 h-56 md:w-80 md:h-80 flex-shrink-0 mt-10 md:mt-0 relative">
+                <!-- Decorative Glow Behind Image -->
+                <div class="absolute inset-0 rounded-full bg-brand-brown blur-2xl opacity-40 scale-110"></div>
+                <img id="detail-img" src="" alt="Coffee" class="relative z-10 w-full h-full object-cover rounded-full border-[6px] border-[#8b4513] shadow-2xl">
+            </div>
+
+            <div class="flex-1 text-center md:text-left mt-4 md:mt-0">
+                <h2 id="detail-title" class="font-cinzel text-4xl md:text-6xl font-bold text-white mb-4 drop-shadow-lg"></h2>
+                <div class="w-20 h-1 bg-[#a0522d] mx-auto md:mx-0 mb-6 rounded-full shadow-[0_0_10px_#a0522d]"></div>
+                <p id="detail-desc" class="font-outfit text-lg md:text-xl text-[#E8D8C3] leading-relaxed font-light drop-shadow-md"></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script>
+        // --- Data ---
+        const coffees = [
+            {
+                id: 'espresso',
+                name: 'Espresso',
+                image: 'https://images.unsplash.com/photo-1510591509098-f4fdc6d0ff04?w=500&q=80',
+                desc: 'A concentrated, intensely bold shot created by forcing pressurized, nearly boiling water through tightly packed, finely ground beans. The pure essence of coffee.'
+            },
+            {
+                id: 'cappuccino',
+                name: 'Cappuccino',
+                image: 'https://images.unsplash.com/photo-1534778101976-62847782c213?w=500&q=80',
+                desc: 'A masterpiece of balance and texture. Comprising exact equal parts of strong espresso, hot steamed milk, and a dense, velvety crown of milk foam.'
+            },
+            {
+                id: 'latte',
+                name: 'Caffè Latte',
+                image: 'https://images.unsplash.com/photo-1570968915860-54d5c301fa9f?w=500&q=80',
+                desc: 'A gentle and milky classic. It starts with a rich shot of espresso, followed by a generous pour of smoothly steamed milk, finished with a light layer of foam.'
+            },
+            {
+                id: 'americano',
+                name: 'Americano',
+                image: 'https://images.unsplash.com/photo-1551030173-122aabc4489c?w=500&q=80',
+                desc: 'Crafted by pouring a shot of espresso and diluting it with hot water, yielding a smooth, lighter-bodied drink that retains the bean\'s deep flavor profile.'
+            },
+            {
+                id: 'mocha',
+                name: 'Caffè Mocha',
+                image: 'https://images.unsplash.com/photo-1578314675249-a6910f80cc4e?w=500&q=80',
+                desc: 'The perfect marriage of coffee and chocolate. A delightful blend combining espresso with rich chocolate syrup and steamed milk.'
+            },
+            {
+                id: 'turkish',
+                name: 'Turkish Coffee',
+                image: 'https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=500&q=80',
+                desc: 'Unfiltered, finely ground coffee boiled with water in a cezve. Celebrated for its highly concentrated flavor, thick texture, and historical tradition.'
+            }
+        ];
+
+        // --- Generate Floating Background Icons ---
+        const bgContainer = document.getElementById('bg-icons-container');
+        const icons = ['fa-coffee', 'fa-mug-hot', 'fa-leaf'];
+        const numIcons = window.innerWidth < 768 ? 15 : 30;
+
+        for (let i = 0; i < numIcons; i++) {
+            let iconEl = document.createElement('i');
+            const randomIcon = icons[Math.floor(Math.random() * icons.length)];
+            iconEl.className = `fa-solid ${randomIcon} bg-icon`;
+            
+            // Randomize position, size, and animation timing
+            iconEl.style.left = `${Math.random() * 100}vw`;
+            const size = Math.random() * 2 + 1; // 1rem to 3rem
+            iconEl.style.fontSize = `${size}rem`;
+            iconEl.style.animationDuration = `${Math.random() * 20 + 15}s`;
+            iconEl.style.animationDelay = `${Math.random() * -30}s`; // Start at random points
+            
+            bgContainer.appendChild(iconEl);
+        }
+
+        // --- STREAMING_CHUNK:Initializing 3D Orbit Mechanics... ---
+        const orbitContainer = document.getElementById('orbit-container');
+        let coffeeElements = [];
+        
+        let angleOffset = 0;
+        const orbitSpeed = 0.002; 
+        
+        // Ellipse Radii and Center
+        let rx = 0; 
+        let ry = 0; 
+        let cx = 0;
+        let cy = 0;
+        let isOrbitActive = true;
+
+        // Create DOM Elements for Cups
+        coffees.forEach((coffee) => {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'coffee-wrapper';
+            
+            const img = document.createElement('img');
+            img.src = coffee.image;
+            img.alt = coffee.name;
+            img.className = 'coffee-img';
+            
+            const name = document.createElement('span');
+            name.innerText = coffee.name;
+            name.className = 'coffee-name font-cinzel';
+            
+            wrapper.appendChild(img);
+            wrapper.appendChild(name);
+            
+            wrapper.addEventListener('click', () => {
+                openDetail(coffee);
+            });
+            
+            orbitContainer.appendChild(wrapper);
+            coffeeElements.push(wrapper);
+        });
+
+        // Function to calculate responsive orbit dimensions
+        function updateOrbitDimensions() {
+            const w = window.innerWidth;
+            const h = window.innerHeight;
+            
+            cx = w / 2;
+            // Force orbit to be in the lower half (e.g., 70-75% down the screen)
+            cy = h * 0.70; 
+            
+            // Dynamic radii based on screen width to prevent horizontal scroll
+            if (w < 768) {
+                rx = (w / 2) - 50; // Mobile width
+                ry = rx * 0.35;    // Flatten ellipse for 3D effect
+            } else {
+                rx = Math.min(w * 0.35, 450); // Desktop width
+                ry = rx * 0.25;               // Flatten ellipse
+            }
+        }
+
+        updateOrbitDimensions();
+        window.addEventListener('resize', updateOrbitDimensions);
+
+        // --- STREAMING_CHUNK:GSAP Ticker for Continuous Animation... ---
+        gsap.ticker.add(() => {
+            if (!isOrbitActive) return;
+
+            angleOffset += orbitSpeed;
+            const total = coffeeElements.length;
+
+            coffeeElements.forEach((el, index) => {
+                // Angle for this specific cup
+                const angle = angleOffset + (index / total) * Math.PI * 2;
+                
+                // Elliptical Path calculations
+                const x = Math.cos(angle) * rx;
+                const y = Math.sin(angle) * ry;
+
+                // 3D Depth Calculation based on Y axis (Sin)
+                // When y is positive (front), scale is larger. When negative (back), scale is smaller.
+                const scale = 1 + (y / ry) * 0.35; // Scale varies from 0.65 to 1.35
+                
+                // Z-index calculation (bring items in front to the top)
+                // Map y from [-ry, ry] to [10, 100] approximately
+                const zIndex = Math.round(50 + (y / ry) * 40);
+
+                // Center adjustments based on image size
+                const itemWidth = window.innerWidth < 768 ? 90 : 140;
+                const itemHeight = window.innerWidth < 768 ? 120 : 180;
+
+                gsap.set(el, {
+                    x: cx + x - (itemWidth / 2),
+                    y: cy + y - (itemHeight / 2),
+                    scale: scale,
+                    zIndex: zIndex,
+                    // Slightly fade items in the back
+                    opacity: scale < 0.9 ? 0.7 + (scale - 0.65) : 1
+                });
+            });
+        });
+
+        // --- STREAMING_CHUNK:Detail View Transitions... ---
+        const detailView = document.getElementById('detail-view');
+        
+        function openDetail(coffee) {
+            isOrbitActive = false;
+            
+            // Populate Data
+            document.getElementById('detail-title').innerText = coffee.name;
+            document.getElementById('detail-desc').innerText = coffee.desc;
+            document.getElementById('detail-img').src = coffee.image;
+
+            const tl = gsap.timeline();
+            
+            // Hide orbiting elements and main text
+            tl.to([...coffeeElements, '.w-full.h-\\[45vh\\]'], { 
+                opacity: 0, 
+                scale: 0.8,
+                duration: 0.4,
+                ease: "power2.inOut",
+                onComplete: () => {
+                    coffeeElements.forEach(el => el.style.pointerEvents = 'none');
+                }
+            }, 0);
+
+            // Show detail view container
+            tl.to(detailView, { 
+                opacity: 1, 
+                duration: 0.1,
+                onStart: () => {
+                    detailView.style.pointerEvents = 'auto';
+                }
+            });
+            
+            // Animate card entrance
+            tl.fromTo('.glass-card', 
+                { scale: 0.9, y: 50, opacity: 0 },
+                { scale: 1, y: 0, opacity: 1, duration: 0.6, ease: "back.out(1.2)" }
+            );
+            
+            // Animate card contents
+            tl.fromTo(['#detail-img', '#detail-title', '.w-20', '#detail-desc'],
+                { opacity: 0, x: -30 },
+                { opacity: 1, x: 0, duration: 0.5, stagger: 0.1, ease: "power2.out" },
+                "-=0.4"
+            );
+        }
+
+        // Back Button Logic
+        document.getElementById('back-btn').addEventListener('click', () => {
+            const tl = gsap.timeline();
+            
+            tl.to('.glass-card', { 
+                scale: 0.9, 
+                y: 30, 
+                opacity: 0, 
+                duration: 0.4, 
+                ease: "power2.in" 
+            });
+            
+            tl.to(detailView, { 
+                opacity: 0, 
+                duration: 0.2,
+                onComplete: () => { 
+                    detailView.style.pointerEvents = 'none'; 
+                    gsap.set('.glass-card', {opacity: 1, scale: 1, y: 0});
+                }
+            });
+            
+            // Restore orbiting elements and main text
+            tl.to([...coffeeElements, '.w-full.h-\\[45vh\\]'], {
+                opacity: 1,
+                scale: 1, // scale for text, orbit cups scale is handled by ticker
+                duration: 0.5,
+                ease: "back.out(1.2)",
+                onStart: () => {
+                    coffeeElements.forEach(el => el.style.pointerEvents = 'auto');
+                },
+                onComplete: () => {
+                    isOrbitActive = true; 
+                }
+            });
+        });
+
+    </script>
+</body>
+</html>
